@@ -2,7 +2,7 @@
 FROM eclipse-temurin:17-jdk-alpine
 
 # Set the working directory inside the container
-WORKDIR /app
+WORKDIR /home/sundar
 
 # Copy the JAR file to the container
 COPY target/*.jar app.jar
