@@ -1,4 +1,4 @@
-name: Java CI with Maven and Docker
+name: Java CI with Maven, Docker, and AKS Deployment
 
 on:
   push:
@@ -7,12 +7,12 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-
+  build-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout Repository
+      uses: actions/checkout@v4
 
     - name: Set up JDK 17
       uses: actions/setup-java@v4
@@ -35,3 +35,18 @@ jobs:
     - name: Push Docker Image to ACR
       run: |
         docker push ${{ secrets.ACR_LOGIN_SERVER }}/support-service:latest
+
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+    - name: Set AKS Context
+      uses: azure/aks-set-context@v3
+      with:
+        resource-group: ${{ secrets.RESOURCE_GROUP }}
+        cluster-name: ${{ secrets.CLUSTER_NAME }}
+
+    - name: Deploy to AKS
+      run: |
+        kubectl apply -f ${{ secrets.DEPLOYMENT_FILE_PATH }}
